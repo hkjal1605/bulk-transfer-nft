@@ -14,6 +14,7 @@ const web3 = createAlchemyWeb3(
 
 const alchemy = new Alchemy(config);
 
+// @ts-ignore
 const nftContract = new web3.eth.Contract(abi, CONTRACT_ADDRESS);
 
 const bulkTransferNft = async (
