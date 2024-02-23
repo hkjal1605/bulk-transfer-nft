@@ -33,16 +33,21 @@ const bulkTransferNft = async (
       await availableTokensToTransferResponse.json()
     ).ownedNfts;
 
-    const nonce = await alchemy.core.getTransactionCount(address);
+    console.log({ availableTokensToTransfer });
 
     await Promise.all(
       addresses.map(async (to, idx) => {
+        const nonce = await alchemy.core.getTransactionCount(
+          address,
+          "pending"
+        );
+
         const tokenID = availableTokensToTransfer[idx].tokenId;
 
         const transaction = {
           from: address,
           to: CONTRACT_ADDRESS,
-          nonce: nonce + idx + 1,
+          nonce: nonce + idx,
           gas: 500000,
           input: nftContract.methods
             .safeTransferFrom(address, to, tokenID)
@@ -59,11 +64,13 @@ const bulkTransferNft = async (
           signedTx.rawTransaction!
         );
 
-        console.log(txn);
+        await alchemy.transact.waitForTransaction(txn.transactionHash);
 
-        alert("Transfer Complete");
+        console.log(txn);
       })
     );
+
+    alert("Transfer Complete");
   } catch (err: any) {
     console.log(err);
 
